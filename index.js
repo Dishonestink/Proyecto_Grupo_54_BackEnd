@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 
+const mongoose = require('mongoose')
 const MongoClient = require('mongodb').MongoClient
 const bodyParser = require('body-parser');
 require('dotenv').config();
@@ -11,30 +12,36 @@ var cors = require("cors");
 const port = process.env.PORT || 3000;
 let db;
 let collection;
-MongoClient.connect("mongodb+srv://Kevin310805lal:530326311019986412@cluster0.erljt.mongodb.net/users?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
+let cursoModel = require("./schema") /*Importación del modelo en schema */
+mongoose.connect("mongodb+srv://Kevin310805lal:530326311019986412@cluster0.erljt.mongodb.net/users?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
     if (err) return console.error(err)
     console.log('Connected to Database')
-    db = client.db('users')
-    collection = db.collection('cursos')
+    /*db = client.db('users')
+    collection = db.collection('cursos')*/
 })
+
 //Ruta Principal pueden poner una descripcion Rutas: 
 app.use(bodyParser.json());
 app.use(cors());
 app.get('/', (req, res) => {
-
-  
             res.json({
                 Nombre: "API academica",
             });
-     
-
 })
+
+
 app.get('/cursos', (req, res) => {
 
-    db.collection('cursos').find().toArray()
-        .then(results => {
-            res.json(results);
-        }).catch(error => console.error(error));
+    cursoModel.find((error,data,next) => 
+    {
+        if (error) {
+            return next(error);
+        } else {
+            console.log(error);
+            res.json(data);
+     }
+    })
+        
 })
 
 app.get('/cursos/:id', (req, res) => {
@@ -44,12 +51,51 @@ app.get('/cursos/:id', (req, res) => {
         }).catch(error => console.error(error));
 })
 
-app.post('/cursos', (req, res) => {
-    collection.insertOne(req.body)
+app.post('/cursos', (req, res) => { 
+    /*collection.insertOne(req.body)
         .then(result => {
             res.json('Success');
         })
-        .catch(error => console.error(error))
+        .catch(error => console.error(error))*/
+    /*let newCurso = new cursoModel();
+    newCurso.id = req.body.id;
+    newCurso.asignatura = req.body.asignatura;
+    newCurso.profesor = req.body.profesor;
+    newCurso.contenido = req.body.contenido;
+    newCurso.grado = req.body.grado;*/
+    console.log(req.body);
+    let existe = false;
+    cursoModel.find({id:parseInt(req.body.id)},function (err, doc) {
+        console.log(err);
+        if (err) {
+          res.status(422).json(err);
+        }
+        else {
+            console.log("Hola");
+            if (doc.data) {
+                cursoModel.findOneAndUpdate({id:parseInt(req.body.id)}, {
+                    $set: {grado:req.body.grado}
+                }, err => {
+                    if (err) {
+                        console.log(err);
+                        res.send("Error añadiendo información");
+                    } else {
+                        res.send("Añadido");
+                    }
+                });
+            } else {
+                cursoModel.create(req.body, err => {
+                    if (err) {
+                        console.log(err);
+                        res.send("Error añadiendo información");
+                    } else {
+                        res.send("Añadido");
+                    }
+                });
+            }
+            
+        };
+    });
 })
 
 app.put('/cursos/:id', (req, res) => {
