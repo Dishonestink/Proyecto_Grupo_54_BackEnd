@@ -14,7 +14,7 @@ let db;
 let collection;
 let cursoModel = require("./schema") /*Importación del modelo en schema */
 mongoose.connect("mongodb+srv://Kevin310805lal:530326311019986412@cluster0.erljt.mongodb.net/users?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-    if (err) return console.error(err)
+    if (err) return console.log('linea 17'), console.error(err)
     console.log('Connected to Database')
     /*db = client.db('users')
     collection = db.collection('cursos')*/
@@ -37,6 +37,7 @@ app.get('/cursos', (req, res) => {
         if (error) {
             return next(error);
         } else {
+            console.log("linea 40")
             console.log(error);
             res.json(data);
      }
@@ -63,32 +64,48 @@ app.post('/cursos', (req, res) => {
     newCurso.profesor = req.body.profesor;
     newCurso.contenido = req.body.contenido;
     newCurso.grado = req.body.grado;*/
+    console.log("linea 67")
     console.log(req.body);
     let existe = false;
     cursoModel.find({id:parseInt(req.body.id)},function (err, doc) {
+        console.log("linea 71")
         console.log(err);
         if (err) {
+            console.log("linea 74")
           res.status(422).json(err);
         }
         else {
-            console.log("Hola");
-            if (doc.data) {
+            console.log("doc[0] impreso");
+            console.log(doc[0]);
+            if (doc[0]) {
+                console.log("linea 81")
                 cursoModel.findOneAndUpdate({id:parseInt(req.body.id)}, {
-                    $set: {grado:req.body.grado}
+                    $set: {grado: req.body.grado,
+                        asignatura: req.body.asignatura, 
+                        profesor: req.body.profesor,
+                        contenido: req.body.contenido}
                 }, err => {
                     if (err) {
+                        console.log("linea 89")
                         console.log(err);
                         res.send("Error añadiendo información");
                     } else {
+                        console.log("linea 93")
                         res.send("Añadido");
+                        cursoModel.find({id:parseInt(req.body.id)},function (err, doc) {
+                            console.log(doc[0])
+                        })
                     }
                 });
             } else {
+                console.log("linea 101")
                 cursoModel.create(req.body, err => {
                     if (err) {
+                        console.log("linea 104")
                         console.log(err);
                         res.send("Error añadiendo información");
                     } else {
+                        console.log("linea 108")
                         res.send("Añadido");
                     }
                 });
