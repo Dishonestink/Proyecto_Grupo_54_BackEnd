@@ -23,6 +23,10 @@ mongoose.connect("mongodb+srv://Kevin310805lal:530326311019986412@cluster0.erljt
 //Ruta Principal pueden poner una descripcion Rutas: 
 app.use(bodyParser.json());
 app.use(cors());
+app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({
+    extended: true
+  }));
 app.get('/', (req, res) => {
             res.json({
                 Nombre: "API academica",
@@ -53,20 +57,8 @@ app.get('/cursos/:id', (req, res) => {
 })
 
 app.post('/cursos', (req, res) => { 
-    /*collection.insertOne(req.body)
-        .then(result => {
-            res.json('Success');
-        })
-        .catch(error => console.error(error))*/
-    /*let newCurso = new cursoModel();
-    newCurso.id = req.body.id;
-    newCurso.asignatura = req.body.asignatura;
-    newCurso.profesor = req.body.profesor;
-    newCurso.contenido = req.body.contenido;
-    newCurso.grado = req.body.grado;*/
-    console.log("linea 67")
-    console.log(req.body);
-    let existe = false;
+    console.log("linea 67");
+    console.log(req);
     cursoModel.find({id:parseInt(req.body.id)},function (err, doc) {
         console.log("linea 71")
         console.log(err);
@@ -132,13 +124,33 @@ app.put('/cursos/:id', (req, res) => {
 
 });
 
-app.delete('/cursos/:id', (req, res) => {
-    collection.deleteOne({ id: req.params.id })
+app.delete('/cursos', (req,res) => {
+    /* collection.deleteOne({ id: req.params.id })
         .then(result => {
             res.json('Deleted')
         })
-        .catch(error => console.error(error))
-})
+    .catch(error => console.error(error)) */
+    /*console.log("req");
+    console.log(req);*/
+    console.log("req.body");
+    console.log(req.body);
+    console.log("req.body.id");
+    console.log(req.body.id);
+    if (req.body.id) {
+        console.log("Existe req.body");
+    } else {
+        console.log("No existe req.body");
+    };
+    cursoModel.findOneAndDelete({id:parseInt(req.body.id)},function (err,doc){
+        if (err) {
+            console.log("linea 136");
+            console.log(err);
+        } else {
+            console.log("linea 139");
+            console.log("Curso Eliminado");
+        }
+    })
+});
 
 app.listen(port, function() {
     console.log('listening on ' + port)
