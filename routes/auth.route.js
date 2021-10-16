@@ -23,6 +23,14 @@ router.route('/').get((req, res) => res.json({name: 'cambio', apellido: 'loren',
 
 
 
+router.route('/logout').post((req,res)=>{
+  db.collection('administradores').findOneAndUpdate({succes:true}, {$set:{succes:false}})
+  res.json({logout: 'Este usuario cerro sesion'})
+  console.log(res);
+});
+
+
+
 
 router.route('/login').post((req,res) => {
   admin = req.body;
@@ -34,7 +42,7 @@ router.route('/login').post((req,res) => {
       res.json({msg: 'Correo o contraseña incorrecta'})
     }
     if(obj && admin.password === obj.password){
-      res.json({well: true});
+      res.json({msge: 'logueado'});
       db.collection('administradores').findOneAndUpdate({email:obj.email}, {$set:{succes: true}})
       console.log('El usuario '+obj.name+', inicio sesion correctamente!')
     }
